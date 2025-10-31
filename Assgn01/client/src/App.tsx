@@ -18,7 +18,6 @@ function App() {
       setTasks(data);
       localStorage.setItem("tasks", JSON.stringify(data));
     } catch {
-      // fallback to localStorage if API unavailable
       const saved = localStorage.getItem("tasks");
       if (saved) setTasks(JSON.parse(saved));
     }
@@ -36,22 +35,24 @@ function App() {
   const toggleComplete = async (task: Task) => {
     const updatedTask = { ...task, isCompleted: !task.isCompleted };
     await updateTask(updatedTask);
-    const updated = tasks.map(t => (t.id === task.id ? updatedTask : t));
+    const updated = tasks.map((t) => (t.id === task.id ? updatedTask : t));
     setTasks(updated);
     localStorage.setItem("tasks", JSON.stringify(updated));
   };
 
   const handleDelete = async (id: string) => {
     await deleteTask(id);
-    const updated = tasks.filter(t => t.id !== id);
+    const updated = tasks.filter((t) => t.id !== id);
     setTasks(updated);
     localStorage.setItem("tasks", JSON.stringify(updated));
   };
 
-  const filteredTasks = tasks.filter(t =>
-    filter === "completed" ? t.isCompleted :
-    filter === "active" ? !t.isCompleted :
-    true
+  const filteredTasks = tasks.filter((t) =>
+    filter === "completed"
+      ? t.isCompleted
+      : filter === "active"
+      ? !t.isCompleted
+      : true
   );
 
   return (
@@ -60,6 +61,7 @@ function App() {
         <Col md={{ span: 6, offset: 3 }}>
           <h2 className="text-center mb-4">Task Manager</h2>
 
+          {/* Add Task Form */}
           <Form className="d-flex mb-3">
             <Form.Control
               type="text"
@@ -72,7 +74,8 @@ function App() {
             </Button>
           </Form>
 
-          <ButtonGroup className="mb-3">
+          {/* Filter Buttons */}
+          <ButtonGroup className="mb-3 w-100">
             <Button
               variant={filter === "all" ? "secondary" : "outline-secondary"}
               onClick={() => setFilter("all")}
@@ -86,15 +89,18 @@ function App() {
               Active
             </Button>
             <Button
-              variant={filter === "completed" ? "secondary" : "outline-secondary"}
+              variant={
+                filter === "completed" ? "secondary" : "outline-secondary"
+              }
               onClick={() => setFilter("completed")}
             >
               Completed
             </Button>
           </ButtonGroup>
 
+          {/* Task List */}
           <ListGroup>
-            {filteredTasks.map(task => (
+            {filteredTasks.map((task) => (
               <ListGroup.Item
                 key={task.id}
                 className="d-flex justify-content-between align-items-center"
@@ -102,19 +108,29 @@ function App() {
                 <span
                   style={{
                     textDecoration: task.isCompleted ? "line-through" : "none",
-                    cursor: "pointer",
                   }}
-                  onClick={() => toggleComplete(task)}
                 >
                   {task.desc}
                 </span>
-                <Button
-                  variant="danger"
-                  size="sm"
-                  onClick={() => handleDelete(task.id)}
-                >
-                  Delete
-                </Button>
+
+                {/* Button group for actions */}
+                <div>
+                  <Button
+                    variant={task.isCompleted ? "warning" : "success"}
+                    size="sm"
+                    className="me-2"
+                    onClick={() => toggleComplete(task)}
+                  >
+                    {task.isCompleted ? "Undo" : "Complete"}
+                  </Button>
+                  <Button
+                    variant="danger"
+                    size="sm"
+                    onClick={() => handleDelete(task.id)}
+                  >
+                    Delete
+                  </Button>
+                </div>
               </ListGroup.Item>
             ))}
           </ListGroup>
